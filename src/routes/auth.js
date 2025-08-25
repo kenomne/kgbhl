@@ -1,1 +1,56 @@
-import { Router } from 'express';import bcrypt from 'bcryptjs';import jwt from 'jsonwebtoken';import db from '../db.js';const router=Router();router.post('/register',(req,res)=>{const{{name,email,password}}=req.body||{};if(!email||!password)return res.status(400).json({error:'email and password required'});const password_hash=bcrypt.hashSync(password,10);const stmt=db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?,?,?)');stmt.run([name||null,email.toLowerCase(),password_hash],function(err){if(err){if(String(err).includes('UNIQUE'))return res.status(409).json({error:'Email already registered'});return res.status(500).json({error:'Database error'});}const user={id:this.lastID,email:email.toLowerCase(),name:name||null};const token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:'7d'});res.json({user,token});});});router.post('/login',(req,res)=>{const{{email,password}}=req.body||{};if(!email||!password)return res.status(400).json({error:'email and password required'});db.get('SELECT * FROM users WHERE email = ?',[email.toLowerCase()],(err,row)=>{if(err)return res.status(500).json({error:'Database error'});if(!row)return res.status(401).json({error:'Invalid credentials'});const ok=bcrypt.compareSync(password,row.password_hash);if(!ok)return res.status(401).json({error:'Invalid credentials'});const user={id:row.id,email:row.email,name:row.name};const token=jwt.sign({id:user.id,email:user.email},process.env.JWT_SECRET,{expiresIn:'7d'});res.json({user,token});});});export default router;
+import { Router } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import db from '../db.js';
+
+const router = Router();
+
+// REGISTER
+router.post('/register', (req, res) => {
+  const { name, email, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+
+  const password_hash = bcrypt.hashSync(password, 10);
+  const stmt = db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)');
+
+  stmt.run([name || null, email.toLowerCase(), password_hash], function (err) {
+    if (err) {
+      if (String(err).includes('UNIQUE')) return res.status(409).json({ error: 'Email already registered' });
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    const user = { id: this.lastID, email: email.toLowerCase(), name: name || null };
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ user, token });
+  });
+});
+
+// LOGIN
+router.post('/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+
+  db.get('SELECT * FROM users WHERE email = ?', [email.toLowerCase()], (err, row) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (!row) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const ok = bcrypt.compareSync(password, row.password_hash);
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const user = { id: row.id, email: row.email, name: row.name };
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ user, token });
+  });
+});
+
+export default router;
