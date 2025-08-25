@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Home",
+    "href": "index.html",
+    "snippet": "Welcome to Lambda Sector, a Half-Life 1\u2013style responsive template."
+  },
+  {
+    "title": "News",
+    "href": "news.html",
+    "snippet": "Latest dispatches and updates."
+  },
+  {
+    "title": "Downloads",
+    "href": "downloads.html",
+    "snippet": "Grab files, patches, and media."
+  },
+  {
+    "title": "Forum",
+    "href": "forum.html",
+    "snippet": "Discuss mods, servers, and tactics."
+  },
+  {
+    "title": "Contact",
+    "href": "contact.html",
+    "snippet": "Reach the admins."
+  },
+  {
+    "title": "Login",
+    "href": "login.html",
+    "snippet": "Sign in (UI only)."
+  },
+  {
+    "title": "Game Server",
+    "href": "redirect.html",
+    "snippet": "Redirect users to your Half-Life server IP/port."
+  }
+]

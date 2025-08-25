@@ -1,0 +1,1 @@
+Auto-extraction failed. Convert your RAR to ZIP locally and copy its contents into /public before running install_ubuntu.sh.
