@@ -1,9 +1,5 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { initDb } from "./db.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// sad čita schema.sql iz root foldera
-const sql = fs.readFileSync(path.join(__dirname, "..", "schema.sql"), "utf8");
+initDb();
+console.log("Database setup finished.");
+process.exit(0);
