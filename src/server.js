@@ -7,6 +7,10 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import session from "express-session";
+import passport from "passport";
+import "./auth/oauth.js"; // OAuth setup
+
 import { initDb } from "./db.js";
 import authRoutes from "./routes/auth.js";
 import itemRoutes from "./routes/items.js";
@@ -47,6 +51,11 @@ app.use(
   })
 );
 
+// Passport + session (mora pre ruta koje koriste Passport)
+app.use(session({ secret: process.env.SESSION_SECRET || "secret", resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // API Health check
 app.get("/api/health", (req, res) => res.json({ ok: true, uptime: process.uptime() }));
 
@@ -55,6 +64,19 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/contact", contactRoutes);
 
+// OAuth routes
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login.html" }),
+  (req, res) => res.redirect("/")
+);
+
+app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+app.get("/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login.html" }),
+  (req, res) => res.redirect("/")
+);
+
 // Serviranje statičkog frontenda
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.get("*", (req, res) => {
@@ -62,24 +84,3 @@ app.get("*", (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => console.log(`Merged site listening on port ${PORT}`));
-import session from "express-session";
-import passport from "passport";
-import "./auth/oauth.js"; // naš oauth setup
-
-app.use(session({ secret: process.env.SESSION_SECRET || "secret", resave: false, saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Google routes
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-app.get("/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login.html" }),
-  (req, res) => res.redirect("/")); // redirect posle login-a
-
-// Facebook routes
-app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-app.get("/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login.html" }),
-  (req, res) => res.redirect("/"));
-
