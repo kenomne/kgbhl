@@ -63,3 +63,23 @@ app.get("*", (req, res) => {
 
 // Start server
 app.listen(PORT, () => console.log(`Merged site listening on port ${PORT}`));
+import session from "express-session";
+import passport from "passport";
+import "./auth/oauth.js"; // naš oauth setup
+
+app.use(session({ secret: process.env.SESSION_SECRET || "secret", resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Google routes
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login.html" }),
+  (req, res) => res.redirect("/")); // redirect posle login-a
+
+// Facebook routes
+app.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+app.get("/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login.html" }),
+  (req, res) => res.redirect("/"));
+
