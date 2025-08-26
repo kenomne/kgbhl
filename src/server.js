@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 
 import session from "express-session";
 import passport from "passport";
-import "./auth/oauth.js"; // OAuth setup
+import "./oauth.js"; // OAuth setup
 
 import { initDb } from "./db.js";
 import authRoutes from "./routes/auth.js";
