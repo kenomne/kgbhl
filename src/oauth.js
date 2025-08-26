@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
-import db from "../db.js"; // tvoja baza
+import db from "./db.js"; // tvoja baza
 
 // Serialize / deserialize korisnika (čuva u sesiji)
 passport.serializeUser((user, done) => {
